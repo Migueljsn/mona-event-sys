@@ -329,16 +329,20 @@ Este arquivo deve ser tratado como a memoria viva do projeto.
 ## Diretriz Operacional
 
 - a memoria do projeto deve ser atualizada continuamente durante todo o desenvolvimento
-- o documento esta autorizado a registrar conteudos sensiveis do sistema quando isso for util para operacao, replicacao futura, manutencao ou deploy
-- credenciais, configuracoes, dependencias externas, variaveis de ambiente, ids de projeto, regras de acesso e instrucoes de setup podem ser documentadas neste arquivo ou em arquivos auxiliares do projeto conforme a necessidade
+- este documento nao deve armazenar conteudos sensiveis em texto aberto
+- credenciais, chaves, tokens, senhas, secrets, ids privados e acessos administrativos devem permanecer fora do versionamento
+- o repositorio pode documentar apenas nomes de variaveis de ambiente, estrutura de integracoes e passos de setup sem expor valores reais
 
 ## Credenciais e Integracoes
 
 ### Supabase
 
 - project_url: https://fvkhgrljimpcsvpezuud.supabase.co
-- anon_public_key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ2a2hncmxqaW1wY3N2cGV6dXVkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYxMjgxNTcsImV4cCI6MjA5MTcwNDE1N30.mnQ7TJddwGya31Yi8C7r4IbhMGhm7ORWvRzvvtDiXXQ
-- service_role_key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ2a2hncmxqaW1wY3N2cGV6dXVkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NjEyODE1NywiZXhwIjoyMDkxNzA0MTU3fQ.ijlQ632rCMqa5zOjYaICRzosZcxXbJFfGOjWOKIIWQk
+- variaveis utilizadas pela aplicacao:
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `SUPABASE_SERVICE_ROLE_KEY`
+- valores reais ficam somente em `.env.local` ou no provedor de deploy
 
 ### Estado atual
 
@@ -442,12 +446,9 @@ Observacao:
 
 ### Usuario admin de teste criado
 
-- email: admin.teste@mona-event-sys.local
-- senha: MonaAdmin#2026
-- provider: email
-- email_confirmed: true
-- user_id: 7356b067-c88e-4a2b-8008-18b7966965cd
-- criado em: 2026-04-14T12:54:40Z
+- usuario administrativo de teste criado no Supabase Auth apenas para validacao do fluxo
+- credenciais e identificadores nao devem ser registrados neste documento
+- qualquer conta provisoria deve ser rotacionada ou removida antes de producao
 
 ### CRUD admin implementado
 
@@ -473,10 +474,8 @@ Observacao:
 
 ### Estado atual
 
-- repositorio local git ativo
-- branch atual: `main`
-- backup remoto decidido para GitHub
-- remoto informado pelo usuario: `git@github.com:Migueljsn/mona-event-sys.git`
+- versionamento previsto em GitHub
+- configuracoes locais de git e remoto nao devem ser tratadas como memoria funcional do produto
 
 ### Observacoes operacionais
 
