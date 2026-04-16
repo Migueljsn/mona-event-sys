@@ -8,7 +8,11 @@ const initialState: LoginActionState = {
   success: false,
 };
 
-export function LoginForm() {
+type LoginFormProps = {
+  disabled?: boolean;
+};
+
+export function LoginForm({ disabled = false }: LoginFormProps) {
   const [state, formAction, pending] = useActionState(signInAction, initialState);
 
   return (
@@ -49,6 +53,13 @@ export function LoginForm() {
         />
       </div>
 
+      {disabled ? (
+        <p className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+          Configure as variáveis do Supabase em `.env.local` para habilitar o
+          login real do painel.
+        </p>
+      ) : null}
+
       {state.error ? (
         <p className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
           {state.error}
@@ -57,10 +68,10 @@ export function LoginForm() {
 
       <button
         type="submit"
-        disabled={pending}
+        disabled={pending || disabled}
         className="mt-2 h-12 rounded-2xl bg-[var(--color-brand)] px-5 text-sm font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
       >
-        {pending ? "Entrando..." : "Entrar no painel"}
+        {disabled ? "Configurar acesso" : pending ? "Entrando..." : "Entrar no painel"}
       </button>
     </form>
   );

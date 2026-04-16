@@ -2,6 +2,9 @@ import Link from "next/link";
 
 import { createCardAction } from "@/app/admin/(protected)/actions";
 import { CardForm } from "@/components/admin/card-form";
+import { hasSupabaseEnv } from "@/lib/env";
+
+export const dynamic = "force-dynamic";
 
 export default function NewCardPage() {
   return (
@@ -16,7 +19,7 @@ export default function NewCardPage() {
               Criar experiencia
             </h1>
             <p className="mt-3 max-w-2xl text-sm leading-6 text-[var(--color-muted)]">
-              Aqui voce cadastra a experiencia com texto, regras de quantidade e
+              Aqui você cadastra a experiência com texto, regras de quantidade e
               dados exibidos na vitrine.
             </p>
           </div>
@@ -30,7 +33,11 @@ export default function NewCardPage() {
         </header>
 
         <section className="rounded-[2rem] border border-[var(--color-line)] bg-white p-8 shadow-sm">
-          <CardForm action={createCardAction} submitLabel="Criar experiencia" />
+          <CardForm
+            action={createCardAction}
+            submitLabel="Criar experiencia"
+            disabled={!hasSupabaseEnv()}
+          />
         </section>
       </div>
     </main>

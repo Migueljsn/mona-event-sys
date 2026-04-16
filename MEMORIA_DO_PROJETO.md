@@ -1,484 +1,363 @@
 # Memoria do Projeto
 
-## Objetivo
+## Identidade do Projeto
 
-Construir um sistema web com duas frentes:
+- nome do projeto: `mona-event-sys`
+- objetivo central: vitrine administravel de experiencias com painel admin e finalizacao comercial via WhatsApp
+- natureza do produto: nao e e-commerce; nao possui checkout nem pagamento online
+- publico:
+- cliente final que navega na vitrine publica
+- operador/admin que gerencia cards e configuracoes
 
-- painel admin para gestao das experiencias/cards
-- vitrine publica para o cliente final
+## Resumo de Produto
 
-O sistema nao tera checkout nem pagamento integrado. O objetivo comercial e gerar leads qualificadas para atendimento via WhatsApp, com os itens de interesse e quantidades selecionadas pelo usuario.
+O sistema foi desenhado para exibir experiencias em formato de cards. O usuario final navega pela vitrine, abre um modal de detalhes, escolhe quantidades dentro das regras da experiencia, adiciona itens ao carrinho local e envia uma consulta consolidada para o WhatsApp.
 
-## Contexto do Produto
+O admin faz login, gerencia cards e ajusta configuracoes globais como numero de WhatsApp, titulo do catalogo e texto-base da mensagem.
 
-O sistema foi pensado para exibir experiencias em formato de cards, inspirado na referencia visual enviada pelo cliente. Cada experiencia pode ter imagem, titulo, descricao, preco exibido, quantidade selecionavel e detalhes adicionais.
-
-O usuario final deve conseguir:
-
-- visualizar as experiencias disponiveis
-- abrir um modal de detalhes ao clicar em "Saiba mais"
-- selecionar quantidade dentro das regras da experiencia
-- adicionar uma ou mais experiencias ao carrinho
-- clicar em "Consultar reservas"
-- ser redirecionado ao WhatsApp com mensagem pronta contendo os itens do carrinho
-
-O administrador deve conseguir:
-
-- criar experiencias
-- editar experiencias
-- remover experiencias
-- ativar/desativar experiencias
-- configurar limites de quantidade por experiencia
-- subir imagens
-- definir textos e mensagem-base do WhatsApp
-
-## Escopo Atual do MVP
-
-### Incluido
-
-- vitrine publica com cards
-- modal de detalhes por experiencia
-- carrinho de consulta
-- geracao de mensagem consolidada para WhatsApp
-- painel admin com CRUD de experiencias
-- upload de imagens
-- configuracao de numero de WhatsApp
-- ordenacao e ativacao/desativacao de cards
-
-### Fora do escopo neste momento
-
-- pagamento online
-- checkout
-- reserva automatica
-- controle real de estoque
-- baixa automatica de disponibilidade
-- multiusuario complexo
-- painel do cliente final
-
-## Conceito Central
-
-Este sistema nao e um e-commerce. Ele deve ser tratado como uma vitrine administravel com carrinho de consulta. O carrinho existe apenas para organizar a intencao de compra antes do contato no WhatsApp.
-
-Consequencias dessa decisao:
-
-- nao precisamos de pedido formal no MVP
-- nao precisamos persistir carrinho no backend
-- nao precisamos de integracao com meios de pagamento
-- nao precisamos de logica de estoque transacional
-
-## Arquitetura Recomendada
-
-### Stack
-
-- Next.js
-- TypeScript
-- Supabase Auth
-- Supabase Postgres
-- Supabase Storage
-- Vercel
-- shadcn/ui
-
-### Justificativa
-
-- um unico projeto atende admin e vitrine publica
-- Supabase resolve autenticacao, banco e storage sem backend separado
-- Vercel simplifica deploy
-- a stack e suficiente para o MVP e escalavel para futuras iteracoes
-
-## Frentes do Sistema
-
-### 1. Admin
-
-Uso interno. Nao sera acessado pelo usuario final.
-
-Pode ficar:
-
-- em URL da Vercel
-- ou em subdominio separado
-
-Responsabilidades:
-
-- login
-- CRUD dos cards/experiencias
-- upload e validacao de imagem
-- configuracao de quantidade minima/maxima/passo
-- configuracao de textos exibidos
-- definicao da ordem de exibicao
-- configuracoes globais do sistema
-
-### 2. Pagina Publica
-
-Uso do cliente final.
-
-Responsabilidades:
-
-- exibir cards ativos
-- abrir modal com detalhes
-- permitir escolha de quantidade
-- adicionar/remover itens do carrinho
-- abrir WhatsApp com mensagem pronta
-
-## Fluxo Principal do Usuario
-
-1. Usuario acessa a vitrine publica.
-2. Visualiza os cards disponiveis.
-3. Clica em "Saiba mais".
-4. O sistema abre um modal com detalhes da experiencia.
-5. Usuario escolhe a quantidade permitida.
-6. Usuario adiciona o item ao carrinho.
-7. Usuario pode repetir o processo em outras experiencias.
-8. Usuario clica em "Consultar reservas".
-9. O sistema abre o WhatsApp com uma mensagem consolidada.
-
-## Fluxo do Admin
-
-1. Admin faz login.
-2. Acessa a listagem de experiencias.
-3. Cria ou edita uma experiencia.
-4. Faz upload da imagem.
-5. Define quantidade minima, maxima, passo e unidade.
-6. Salva a experiencia.
-7. A experiencia passa a aparecer na vitrine publica se estiver ativa.
-
-## Regras de Negocio ja Definidas
+## Regra de Negocio Principal
 
 - toda finalizacao comercial acontece via WhatsApp
-- nao havera controle automatico de estoque
-- o limite de quantidade por experiencia e apenas uma regra de selecao no frontend
-- o admin define a capacidade maxima por experiencia
-- o usuario pode adicionar mais de uma experiencia ao carrinho
-- o botao "Saiba mais" abre um modal de detalhes
-- a mensagem do WhatsApp deve listar todas as experiencias escolhidas e suas quantidades
+- nao existe pedido formal no backend no MVP
+- nao existe controle de estoque transacional
+- o carrinho serve apenas para organizar a intencao de compra antes do contato
+- limites de quantidade por experiencia sao regras de selecao, nao estoque real
+- cards vencidos por `valid_until` deixam de aparecer na vitrine publica
 
-## Modelo Conceitual Inicial
+## Escopo Implementado
 
-### Entidade: cards
+### Publico
 
-Campos previstos:
-
-- id
-- title
-- slug
-- short_description
-- long_description
-- additional_info
-- image_url
-- price_text
-- price_prefix
-- button_label
-- unit_label
-- min_quantity
-- max_quantity
-- quantity_step
-- is_active
-- display_order
-- valid_until
-- created_at
-- updated_at
-
-### Entidade: settings
-
-Campos previstos:
-
-- id
-- business_whatsapp_number
-- catalog_title
-- catalog_subtitle
-- reservation_button_label
-- whatsapp_message_intro
-- created_at
-- updated_at
-
-## Carrinho
-
-### Proposta do MVP
-
-Persistencia local no navegador usando localStorage.
-
-### Motivo
-
-- reduz complexidade
-- atende bem o fluxo do produto
-- nao existe pedido formal no backend
-- nao depende de login do usuario final
-
-### Estrutura conceitual do item do carrinho
-
-- card_id
-- title
-- quantity
-- unit_label
-- price_text
-- image_url
-
-## Modal de Detalhes
-
-Cada card deve abrir um modal com:
-
-- imagem principal
-- titulo
-- descricao detalhada
-- seletor de quantidade
-- preco exibido
-- botao "Adicionar ao carrinho"
-- secao opcional de informacoes adicionais
-
-## Upload de Imagens
-
-Direcao atual:
-
-- aceitar JPG, PNG e WebP
-- orientar formato horizontal
-- trabalhar com proporcao consistente entre cards
-- limitar resolucao maxima
-- limitar tamanho maximo do arquivo
-
-Observacao:
-
-Ainda vamos fechar os numeros exatos de resolucao e limite de arquivo na fase de implementacao.
-
-## Mensagem do WhatsApp
-
-Formato esperado:
-
-```text
-Ola! Tenho interesse nas seguintes experiencias:
-
-- Buffet Feijoada 8 estrelas - Quantidade: 2 unidades
-- Day Spa - Quantidade: 1 unidade
-
-Gostaria de verificar disponibilidade e condicoes de reserva.
-```
-
-Observacoes:
-
-- a mensagem deve ser montada automaticamente com base no carrinho
-- o numero do WhatsApp deve ser configuravel no admin/settings
-- a abertura do WhatsApp sera feita com URL encoded
-
-## Rotas Previstas
-
-### Publicas
-
-- /
+- vitrine em `/`
+- cards de experiencias
+- modal de detalhes
+- seletor de quantidade no modal
+- carrinho local em `localStorage`
+- alteracao/remocao de itens no carrinho
+- geracao de link do WhatsApp com mensagem consolidada
 
 ### Admin
 
-- /admin/login
-- /admin/cards
-- /admin/cards/new
-- /admin/cards/[id]
-- /admin/settings
+- login em `/admin/login`
+- area protegida em `/admin`
+- dashboard com metricas simples
+- CRUD de cards
+- edicao de configuracoes globais
+- ativacao/inativacao de cards
+- exclusao de cards
+- upload de imagem com validacao de formato e peso
+- mini editor de imagem com crop fixo `4:3`, zoom e reposicionamento antes do upload
 
-## Ordem Recomendada de Implementacao
+### Dados
 
-1. Definir blueprint tecnico final
-2. Criar o projeto base em Next.js
-3. Configurar Supabase
-4. Implementar autenticacao do admin
-5. Criar schema de banco e storage
-6. Implementar admin de cards
-7. Implementar vitrine publica
-8. Implementar modal de detalhes
-9. Implementar carrinho com localStorage
-10. Implementar geracao da mensagem para WhatsApp
-11. Refinar interface e publicar
-
-## Premissas para Reuso Futuro
-
-Este documento deve servir como referencia para replicar o sistema em outros clientes com pequenas adaptacoes. Para isso, a implementacao deve buscar:
-
-- separacao entre configuracao global e conteudo dos cards
-- modelagem generica o suficiente para outros catalogos de experiencias
-- independencia entre visual da vitrine e logica de administracao
-- possibilidade de trocar identidade visual sem alterar a estrutura do produto
-
-## Decisoes em Aberto
-
-Itens que ainda precisam ser fechados:
-
-- resolucao e peso maximo das imagens
-- visual exato do carrinho na pagina publica
-- se o card tera botao extra de adicionar rapido fora do modal
-- textos padrao definitivos do WhatsApp
-- identidade visual do projeto
-
-## Historico de Decisoes
-
-### Fase inicial
-
-- sistema definido como vitrine com painel admin
-- finalizacao comercial centralizada no WhatsApp
-- controle de estoque decidido como manual
-- quantidade por experiencia configurada no admin
-- carrinho introduzido para suportar multiplas experiencias
-- modal de detalhes introduzido como fluxo principal de interacao
-
-## Como usar este documento
-
-Atualizar este arquivo sempre que houver:
-
-- nova decisao de produto
-- alteracao de arquitetura
-- mudanca de regra de negocio
-- definicao de campos, rotas ou fluxos
-- decisoes importantes de implementacao
-
-Este arquivo deve ser tratado como a memoria viva do projeto.
-
-## Diretriz Operacional
-
-- a memoria do projeto deve ser atualizada continuamente durante todo o desenvolvimento
-- este documento nao deve armazenar conteudos sensiveis em texto aberto
-- credenciais, chaves, tokens, senhas, secrets, ids privados e acessos administrativos devem permanecer fora do versionamento
-- o repositorio pode documentar apenas nomes de variaveis de ambiente, estrutura de integracoes e passos de setup sem expor valores reais
-
-## Credenciais e Integracoes
-
-### Supabase
-
-- project_url: https://fvkhgrljimpcsvpezuud.supabase.co
-- variaveis utilizadas pela aplicacao:
-- `NEXT_PUBLIC_SUPABASE_URL`
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-- `SUPABASE_SERVICE_ROLE_KEY`
-- valores reais ficam somente em `.env.local` ou no provedor de deploy
-
-### Estado atual
-
-- projeto iniciado do zero
-- sem codigo previo
-- sem configuracao previa de Vercel
-- stack confirmada: Next.js + TypeScript + Supabase + Tailwind + shadcn/ui
-- variaveis de ambiente locais configuradas em .env.local
-- arquivo .env.example criado para replicacao futura
-
-## Implementacao Realizada
-
-### Base do projeto
-
-- projeto Next.js criado com App Router
-- TypeScript, Tailwind e ESLint configurados
-- projeto inicializado localmente em `/Users/miguelneto/Library/Mobile Documents/com~apple~CloudDocs/dev/mona-event-sys`
-- package name definido como `mona-event-sys`
-
-### Dependencias adicionadas
-
-- @supabase/supabase-js
-- @supabase/ssr
-- clsx
-- tailwind-merge
-- lucide-react
-
-### Estrutura inicial criada
-
-- home publica customizada substituindo o template padrao do Next.js
-- rota `/admin`
-- rota `/admin/login`
-- configuracao central de site
-- cliente browser do Supabase
-- cliente server do Supabase
-- cliente admin do Supabase via service role
-- validacao centralizada das variaveis de ambiente
-
-### Estado do frontend
-
-- interface inicial ja alinhada ao produto, removendo o boilerplate do Next.js
-- identidade visual provisoria aplicada
-- area admin marcada como placeholder funcional para a proxima etapa
-
-### Proxima etapa de implementacao
-
-- definir schema do banco no Supabase
-- configurar autenticacao do admin
-- implementar CRUD real de experiencias
-
-### Schema inicial criado localmente
-
-Arquivo:
-
-- `supabase/migrations/001_initial_schema.sql`
-
-Conteudo atual:
-
-- tabela `public.cards`
-- tabela `public.settings`
-- trigger generica de `updated_at`
-- politicas iniciais de RLS
+- leitura publica de `cards` e `settings`
+- leitura autenticada para area admin
 - seed inicial de `settings`
+- fallback local de bootstrap quando Supabase nao esta configurado ou a leitura falha
+
+## Fora do Escopo Atual
+
+- checkout
+- pagamento online
+- reserva automatica
+- painel do cliente final
+- controle de estoque
+- multiusuario com perfis/roles finos
+
+## Arquitetura Real do Projeto
+
+### Stack
+
+- Next.js 16 com App Router
+- React 19
+- TypeScript
+- Tailwind CSS 4
+- Supabase Auth
+- Supabase Postgres
+- Supabase SSR
+
+### Observacao importante de build
+
+- `npm run build` usa `next build --webpack`
+- motivo: o projeto compila corretamente com Webpack; Turbopack apresentou instabilidade de ambiente no contexto atual
+
+### Estrutura de alto nivel
+
+- `src/app/page.tsx`: entrada da vitrine publica
+- `src/components/public/catalog-shell.tsx`: UI e logica cliente da vitrine, modal e carrinho
+- `src/app/admin/login/*`: login do admin
+- `src/app/admin/(protected)/*`: area autenticada do painel
+- `src/lib/data/cards.ts`: camada de leitura de `cards` e `settings`
+- `src/lib/supabase/public.ts`: client publico sem cookies para leituras anonimas
+- `src/lib/supabase/server.ts`: client SSR com cookies para rotas autenticadas
+- `src/lib/supabase/admin.ts`: client com service role
+- `src/proxy.ts`: proxy/middleware para manter sessao do Supabase nas rotas admin
+
+## Rotas Reais
+
+### Publicas
+
+- `/`
+
+### Admin
+
+- `/admin`
+- `/admin/login`
+- `/admin/cards/new`
+- `/admin/cards/[id]`
+- `/admin/settings`
 
 Observacao:
 
-- as politicas atuais assumem que usuarios autenticados sao usuarios administrativos
-- quando a autenticacao do admin estiver pronta, vamos revisar se mantemos esse modelo ou se adicionamos uma camada de roles/perfis
+- nao existe rota `/admin/cards` separada; a listagem operacional esta no dashboard `/admin`
 
-### Execucao da migration
+## Fluxo do Usuario Final
 
-- a migration `001_initial_schema.sql` foi executada com sucesso no Supabase
-- retorno informado: `Success. No rows returned`
-- isso confirma que o schema base e as policies iniciais ja estao aplicados no projeto remoto
+1. Acessa `/`
+2. Visualiza cards ativos
+3. Abre um card em modal
+4. Escolhe quantidade permitida
+5. Adiciona ao carrinho local
+6. Pode ajustar/remover itens no bloco lateral do carrinho
+7. Clica no CTA principal
+8. O sistema gera um link `wa.me` com a mensagem consolidada
 
-### Nova etapa em andamento
+## Fluxo do Admin
 
-- implementar autenticacao do admin
-- conectar leitura real de `cards` e `settings`
-- preparar a area admin protegida para evoluir ao CRUD
+1. Acessa `/admin/login`
+2. Faz login com usuario do Supabase Auth
+3. Entra na area protegida `/admin`
+4. Visualiza cards e metricas
+5. Cria, edita, ativa/inativa ou remove cards
+6. Ajusta configuracoes globais em `/admin/settings`
 
-### Implementacao em andamento: auth e leitura real
+## Modelo de Dados Atual
 
-- rota `/admin/login` convertida para fluxo real com Supabase Auth
-- area `/admin` reorganizada como rota protegida
-- proxy do Next 16 adicionado para manter sessao do Supabase nas rotas admin
-- leitura real de `public.cards` e `public.settings` adicionada na aplicacao
-- home publica alterada para consumir dados do banco em vez de texto fixo
+### Tabela `public.cards`
 
-### Estado validado
+Campos usados pela aplicacao:
 
-- `npm run lint` executado com sucesso
-- `npm run build` executado com sucesso
-- home publica ja consome configuracoes reais do banco
-- dashboard admin ja depende de sessao autenticada
-- ainda nao existe usuario admin criado no Supabase Auth
+- `id`
+- `title`
+- `slug`
+- `short_description`
+- `long_description`
+- `additional_info`
+- `image_url`
+- `price_text`
+- `price_prefix`
+- `button_label`
+- `unit_label`
+- `min_quantity`
+- `max_quantity`
+- `quantity_step`
+- `is_active`
+- `display_order`
+- `valid_until`
+- `created_at`
+- `updated_at`
 
-### Proxima necessidade operacional
+### Tabela `public.settings`
 
-- criar o primeiro usuario admin no Supabase Auth para testar o login real
+Campos usados pela aplicacao:
 
-### Usuario admin de teste criado
+- `id`
+- `business_whatsapp_number`
+- `catalog_title`
+- `catalog_subtitle`
+- `reservation_button_label`
+- `whatsapp_message_intro`
+- `created_at`
+- `updated_at`
 
-- usuario administrativo de teste criado no Supabase Auth apenas para validacao do fluxo
-- credenciais e identificadores nao devem ser registrados neste documento
-- qualquer conta provisoria deve ser rotacionada ou removida antes de producao
+### Carrinho local
 
-### CRUD admin implementado
+Estrutura do item:
 
-- rota `/admin/cards/new` criada
-- rota `/admin/cards/[id]` criada
-- rota `/admin/settings` criada
-- numero de WhatsApp passou a ser editavel no painel admin
-- CRUD server-side de `cards` implementado com create, update, delete e toggle de status
-- atualizacao de `settings` implementada com revalidacao da home publica
-- `image_url` esta operacional via campo manual nesta etapa
-- campo `price_text` no admin foi alterado para usar mascara de moeda em reais
-- ajuda contextual por campo adicionada no admin com icone `?`, funcionando por hover no desktop e clique/foco no mobile
-- `valid_until` passou a ter efeito real: cards vencidos deixam de aparecer na vitrine publica e sao exibidos como `Expirado` no admin
+- `card_id`
+- `title`
+- `quantity`
+- `unit_label`
+- `price_text`
+- `image_url`
 
-### Proxima etapa de produto
+Persistencia:
 
-- upload real de imagem em Supabase Storage
-- modal de detalhes na vitrine
-- carrinho com `localStorage`
-- geracao consolidada do link de WhatsApp
+- navegador via `localStorage`
+- chave usada: `mona-event-sys-cart`
 
-## Backup e Versionamento
+## Estado de Integracao com Supabase
 
-### Estado atual
+### Variaveis de ambiente exigidas
 
-- versionamento previsto em GitHub
-- configuracoes locais de git e remoto nao devem ser tratadas como memoria funcional do produto
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `SUPABASE_SERVICE_ROLE_KEY`
 
-### Observacoes operacionais
+### Comportamento da aplicacao
 
-- `.env.local` permanece fora do versionamento
-- `.env.example` entra no repositorio para replicacao
-- migrations e memoria do projeto entram no repositorio como parte do backup tecnico
+- se `NEXT_PUBLIC_SUPABASE_URL` e `NEXT_PUBLIC_SUPABASE_ANON_KEY` existirem:
+- a vitrine publica le `cards` e `settings` reais
+- o admin tenta usar sessao real com cookies
+
+- se faltarem variaveis publicas:
+- a aplicacao entra em modo bootstrap
+- usa dados de exemplo definidos em `src/lib/bootstrap-data.ts`
+- a UI continua navegavel
+
+- se o Supabase estiver configurado mas a rede falhar:
+- a camada `src/lib/data/cards.ts` faz fallback para os dados bootstrap
+- isso evita quebra total da home e do dashboard
+
+### Clients Supabase
+
+- `public.ts`: leitura publica sem cookies
+- `server.ts`: SSR autenticado com cookies
+- `admin.ts`: service role para operacoes administrativas internas
+
+## Banco e RLS
+
+Arquivo principal:
+
+- `supabase/migrations/001_initial_schema.sql`
+
+Esse arquivo cria:
+
+- extensao `pgcrypto`
+- tabela `public.cards`
+- tabela `public.settings`
+- trigger generico de `updated_at`
+- policy publica para leitura de cards ativos
+- policy publica para leitura de settings
+- policy autenticada ampla para gerenciar cards
+- policy autenticada ampla para gerenciar settings
+- seed inicial de uma linha em `settings`
+
+Observacao importante:
+
+- a policy atual assume que qualquer usuario autenticado pode administrar `cards` e `settings`
+- isso funciona para MVP e ambiente controlado
+- se houver mais de um tipo de usuario no futuro, sera necessario introduzir perfis/roles
+
+## UI e Comportamento Implementado
+
+### Vitrine
+
+- interface publica customizada
+- header fixo inspirado na navegacao institucional do Mona Hotel
+- header sem qualquer atalho visivel para o painel admin
+- hero simplificado com badge "Experiencias Mona Hotel" e CTAs principais
+- cards com imagem, preco, titulo e descricao curta
+- modal com descricao detalhada e informacoes adicionais
+- carrinho lateral sticky em desktop
+- CTA principal para WhatsApp
+- ajustes defensivos no header mobile para evitar glitches visuais ao navegar entre vitrine e admin
+
+### Admin
+
+- dashboard com metricas:
+- total de experiencias
+- experiencias ativas
+- experiencias expiradas
+- numero de WhatsApp atual
+
+- formularios com ajuda contextual
+- campo `price_text` com mascara em reais
+- upload de imagem para Supabase Storage
+- mini editor de imagem no formulario de cards
+- fallback opcional por `image_url` manual
+- configuracoes globais editaveis
+
+## Bootstrap / Fallback
+
+O projeto possui um modo de resiliencia deliberado para facilitar desenvolvimento e demonstracao:
+
+- dados bootstrap ficam em `src/lib/bootstrap-data.ts`
+- incluem cards de exemplo e settings de exemplo
+- o modo bootstrap e usado quando:
+- as variaveis publicas nao existem
+- a leitura do Supabase falha
+
+Isso e intencional e faz parte da arquitetura atual.
+
+## Estado Atual Validado
+
+- dependencias instaladas
+- `npm run lint` passa
+- `npm run build` passa
+- build com `.env.local` foi validado
+- a home publica le do Supabase quando a rede esta disponivel
+- as rotas admin estao marcadas como dinamicas por dependerem de sessao/cookies
+- o projeto sobe em `npm run dev`; eventual troca de porta e situacional e nao representa erro do codigo
+- o header da vitrine foi estabilizado para evitar estado visual residual em retorno de navegacao
+
+## Pendencias Reais
+
+- validar manualmente o login com usuario admin real no navegador
+- validar CRUD completo contra o banco real via interface
+- revisar UX final do carrinho e detalhes visuais
+- revisar comportamento visual do header em navegacao mobile e cache/back-forward no navegador real
+- eventualmente endurecer modelo de permissao do admin
+
+## Diretriz de Imagens
+
+- proporcao recomendada para cards: `4:3`
+- resolucao ideal: `1600 x 1200`
+- resolucao minima recomendada: `1200 x 900`
+- formato preferido: `WebP`
+- formatos aceitos no upload: `JPG`, `PNG` e `WebP`
+- limite maximo de arquivo no upload: `400 KB`
+- arquivos acima desse limite devem ser recusados
+- o editor do admin exporta a imagem final para `1600 x 1200` antes do upload
+
+## Storage
+
+- bucket esperado para imagens dos cards: `card-images`
+- o upload usa URL publica do arquivo apos envio para o bucket
+
+## Decisoes de Implementacao Importantes
+
+- a home publica usa client publico do Supabase, nao client SSR com cookies
+- o admin usa client server-side com cookies e proxy para sessao
+- o carrinho permanece fora do backend
+- o build usa Webpack por estabilidade operacional
+- a vitrine nao deve expor o acesso administrativo para leads/usuarios finais
+- segredos reais nao devem ser registrados aqui nem em `.env.example`
+
+## Arquivos-Chave para Outra IA
+
+Se outra IA precisar continuar o projeto, comece por estes arquivos:
+
+- `MEMORIA_DO_PROJETO.md`
+- `README.md`
+- `package.json`
+- `src/app/page.tsx`
+- `src/components/public/catalog-shell.tsx`
+- `src/app/admin/(protected)/page.tsx`
+- `src/app/admin/(protected)/actions.ts`
+- `src/lib/data/cards.ts`
+- `src/lib/env.ts`
+- `src/lib/bootstrap-data.ts`
+- `src/lib/supabase/public.ts`
+- `src/lib/supabase/server.ts`
+- `src/proxy.ts`
+- `supabase/migrations/001_initial_schema.sql`
+
+## Regras para Atualizar Esta Memoria
+
+Atualizar este arquivo sempre que houver:
+
+- mudanca de rotas
+- mudanca de schema
+- mudanca de comportamento do carrinho
+- mudanca na forma de autenticacao
+- introducao de upload real de imagens
+- mudanca no modelo de permissao do admin
+- mudanca relevante de build ou deploy
+
+## Seguranca
+
+- nao registrar chaves reais, tokens ou credenciais neste arquivo
+- `.env.example` deve conter placeholders
+- valores reais ficam apenas em `.env.local` ou no provedor de deploy
+- se alguma service role for exposta, rotacionar imediatamente no Supabase

@@ -40,3 +40,22 @@ export function getCardStatus(card: {
 
   return card.is_active ? "Ativo" : "Inativo";
 }
+
+export function sanitizeWhatsappNumber(value: string) {
+  return value.replace(/\D/g, "");
+}
+
+export function buildWhatsAppMessageIntro(value: string) {
+  return value.trim() || "Olá! Tenho interesse nas seguintes experiências:";
+}
+
+export function getDaysUntilExpiry(validUntil: string | null): number | null {
+  if (!validUntil) return null;
+  const today = new Date();
+  const todayUtc = new Date(
+    Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()),
+  );
+  const validDate = new Date(`${validUntil}T00:00:00.000Z`);
+  const diff = validDate.getTime() - todayUtc.getTime();
+  return Math.ceil(diff / (1000 * 60 * 60 * 24));
+}

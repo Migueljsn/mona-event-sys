@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 
+import { hasSupabaseEnv } from "@/lib/env";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export type LoginActionState = {
@@ -13,6 +14,13 @@ export async function signInAction(
   _prevState: LoginActionState,
   formData: FormData,
 ): Promise<LoginActionState> {
+  if (!hasSupabaseEnv()) {
+    return {
+      success: false,
+      error: "Configure o Supabase antes de habilitar o login do painel.",
+    };
+  }
+
   const email = String(formData.get("email") ?? "").trim();
   const password = String(formData.get("password") ?? "").trim();
 
@@ -37,6 +45,10 @@ export async function signInAction(
 }
 
 export async function signOutAction() {
+  if (!hasSupabaseEnv()) {
+    redirect("/admin/login");
+  }
+
   const supabase = await createSupabaseServerClient();
   await supabase.auth.signOut();
   redirect("/admin/login");

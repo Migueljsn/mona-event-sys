@@ -1,14 +1,13 @@
 import { createClient } from "@supabase/supabase-js";
 
-import { requirePublicEnv, requireServerEnv } from "@/lib/env";
+import { requirePublicEnv } from "@/lib/env";
 
-export function createSupabaseAdminClient() {
+export function createSupabasePublicClient() {
   const env = requirePublicEnv();
-  const serverEnv = requireServerEnv();
 
   return createClient(
     env.NEXT_PUBLIC_SUPABASE_URL,
-    serverEnv.SUPABASE_SERVICE_ROLE_KEY,
+    env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
     {
       auth: {
         autoRefreshToken: false,

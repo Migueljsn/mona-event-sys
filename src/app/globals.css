@@ -14,8 +14,8 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "SFMono-Regular", "Consolas", "Liberation Mono", monospace;
 }
 
 * {
@@ -29,10 +29,37 @@ html {
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+  font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
 }
 
 a {
   color: inherit;
   text-decoration: none;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(18px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0)    scale(1); }
+}
+
+@keyframes toast-in {
+  from { opacity: 0; transform: translateX(-50%) translateY(10px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+.animate-fade-in  { animation: fade-in  0.2s ease-out; }
+.animate-slide-up { animation: slide-up 0.22s ease-out; }
+.animate-toast-in { animation: toast-in 0.2s ease-out; }
+
+@keyframes hero-ken-burns {
+  from { transform: scale(1)    translate(0, 0); }
+  to   { transform: scale(1.08) translate(-1%, -1%); }
+}
+.animate-ken-burns {
+  animation: hero-ken-burns 8s ease-in-out forwards;
 }

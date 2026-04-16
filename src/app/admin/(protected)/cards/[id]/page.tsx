@@ -7,6 +7,9 @@ import {
 } from "@/app/admin/(protected)/actions";
 import { CardForm } from "@/components/admin/card-form";
 import { getAdminCardById } from "@/lib/data/cards";
+import { hasSupabaseEnv } from "@/lib/env";
+
+export const dynamic = "force-dynamic";
 
 type CardEditPageProps = {
   params: Promise<{
@@ -34,8 +37,8 @@ export default async function CardEditPage({ params }: CardEditPageProps) {
               {card.title}
             </h1>
             <p className="mt-3 max-w-2xl text-sm leading-6 text-[var(--color-muted)]">
-              Ajuste conteudo, limites de quantidade e exibicao publica desta
-              experiencia.
+              Ajuste conteúdo, limites de quantidade e exibição pública desta
+              experiência.
             </p>
           </div>
 
@@ -52,6 +55,7 @@ export default async function CardEditPage({ params }: CardEditPageProps) {
             action={updateCardAction}
             card={card}
             submitLabel="Salvar alteracoes"
+            disabled={!hasSupabaseEnv()}
           />
         </section>
 
@@ -60,7 +64,7 @@ export default async function CardEditPage({ params }: CardEditPageProps) {
             Excluir experiencia
           </h2>
           <p className="mt-2 text-sm leading-6 text-[var(--color-muted)]">
-            Esta acao remove o card do banco e da vitrine. Use apenas quando nao
+            Esta ação remove o card do banco e da vitrine. Use apenas quando não
             fizer mais sentido manter o item.
           </p>
 
@@ -68,6 +72,7 @@ export default async function CardEditPage({ params }: CardEditPageProps) {
             <input type="hidden" name="id" value={card.id} />
             <button
               type="submit"
+              disabled={!hasSupabaseEnv()}
               className="rounded-full bg-red-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-red-700"
             >
               Excluir experiencia

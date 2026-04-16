@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { SignOutButton } from "@/components/auth/sign-out-button";
+import { hasSupabaseEnv } from "@/lib/env";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export default async function ProtectedAdminLayout({
@@ -9,13 +10,20 @@ export default async function ProtectedAdminLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const supabase = await createSupabaseServerClient();
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
+  let sessionEmail: string | null = null;
+  const isConfigured = hasSupabaseEnv();
 
-  if (!session) {
-    redirect("/admin/login");
+  if (isConfigured) {
+    const supabase = await createSupabaseServerClient();
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+
+    if (!session) {
+      redirect("/admin/login");
+    }
+
+    sessionEmail = session.user.email ?? null;
   }
 
   return (
@@ -29,16 +37,24 @@ export default async function ProtectedAdminLayout({
             <nav className="flex items-center gap-4 text-sm text-[var(--color-muted)]">
               <Link href="/admin">Dashboard</Link>
               <Link href="/admin/cards/new">Novo card</Link>
-              <Link href="/admin/settings">Settings</Link>
+              <Link href="/admin/settings">Configurações</Link>
               <Link href="/">Vitrine</Link>
             </nav>
           </div>
 
           <div className="flex items-center gap-4">
-            <span className="hidden text-sm text-[var(--color-muted)] md:inline">
-              {session.user.email}
-            </span>
-            <SignOutButton />
+            {!isConfigured ? (
+              <span className="rounded-full border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-900">
+                Modo bootstrap sem Supabase
+              </span>
+            ) : (
+              <>
+                <span className="hidden text-sm text-[var(--color-muted)] md:inline">
+                  {sessionEmail}
+                </span>
+                <SignOutButton />
+              </>
+            )}
           </div>
         </div>
       </header>

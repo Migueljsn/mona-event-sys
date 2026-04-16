@@ -1,16 +1,21 @@
 import { redirect } from "next/navigation";
 
 import { LoginForm } from "@/components/auth/login-form";
+import { hasSupabaseEnv } from "@/lib/env";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
-export default async function AdminLoginPage() {
-  const supabase = await createSupabaseServerClient();
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
+export const dynamic = "force-dynamic";
 
-  if (session) {
-    redirect("/admin");
+export default async function AdminLoginPage() {
+  if (hasSupabaseEnv()) {
+    const supabase = await createSupabaseServerClient();
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+
+    if (session) {
+      redirect("/admin");
+    }
   }
 
   return (
@@ -24,12 +29,12 @@ export default async function AdminLoginPage() {
             Login do admin
           </h1>
           <p className="text-sm leading-6 text-[var(--color-muted)]">
-            Use um usuario criado no Supabase Auth para acessar o painel
+            Use um usuário criado no Supabase Auth para acessar o painel
             interno.
           </p>
         </div>
 
-        <LoginForm />
+        <LoginForm disabled={!hasSupabaseEnv()} />
       </section>
     </main>
   );

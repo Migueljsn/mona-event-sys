@@ -3,6 +3,9 @@ import Link from "next/link";
 import { updateSettingsAction } from "@/app/admin/(protected)/actions";
 import { SettingsForm } from "@/components/admin/settings-form";
 import { getSettings } from "@/lib/data/cards";
+import { hasSupabaseEnv } from "@/lib/env";
+
+export const dynamic = "force-dynamic";
 
 export default async function SettingsPage() {
   const settings = await getSettings();
@@ -19,7 +22,7 @@ export default async function SettingsPage() {
               Ajustes globais do sistema
             </h1>
             <p className="mt-3 max-w-2xl text-sm leading-6 text-[var(--color-muted)]">
-              Aqui voce define o numero de WhatsApp, textos do catalogo e a base
+              Aqui você define o número de WhatsApp, textos do catálogo e a base
               da mensagem enviada na consulta.
             </p>
           </div>
@@ -33,7 +36,11 @@ export default async function SettingsPage() {
         </header>
 
         <section className="rounded-[2rem] border border-[var(--color-line)] bg-white p-8 shadow-sm">
-          <SettingsForm settings={settings} action={updateSettingsAction} />
+          <SettingsForm
+            settings={settings}
+            action={updateSettingsAction}
+            disabled={!hasSupabaseEnv()}
+          />
         </section>
       </div>
     </main>

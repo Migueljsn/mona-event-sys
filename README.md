@@ -1,36 +1,141 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Mona Event Sys
 
-## Getting Started
+Sistema web para vitrine de experiencias com duas frentes:
 
-First, run the development server:
+- vitrine publica para o cliente final
+- painel admin para gestao de cards e configuracoes
+
+O fluxo comercial e finalizado via WhatsApp. Nao existe checkout nem pagamento online no MVP.
+
+## Stack
+
+- Next.js 16
+- TypeScript
+- Tailwind CSS 4
+- Supabase Auth
+- Supabase Postgres
+- Supabase Storage
+
+## Setup Local
+
+1. Instale as dependencias:
+
+```bash
+npm install
+```
+
+2. Preencha o arquivo `.env.local` com as chaves reais do Supabase:
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=https://seu-projeto.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=sua-anon-key
+SUPABASE_SERVICE_ROLE_KEY=sua-service-role-key
+```
+
+3. Rode o projeto:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+4. Para validar producao localmente:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm run build
+npm run start
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Variaveis de Ambiente
 
-## Learn More
+O projeto espera exatamente estas variaveis:
 
-To learn more about Next.js, take a look at the following resources:
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `SUPABASE_SERVICE_ROLE_KEY`
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Arquivos:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- `.env.example`: modelo seguro para versionamento
+- `.env.local`: valores reais locais, ignorados pelo Git
 
-## Deploy on Vercel
+## Estado Atual
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+O projeto possui dois modos de operacao:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- modo bootstrap:
+  quando o Supabase ainda nao foi configurado, a aplicacao usa dados de exemplo para manter a vitrine e o admin navegaveis
+- modo conectado:
+  quando as variaveis reais sao preenchidas em `.env.local`, a aplicacao passa a usar Auth, banco e configuracoes reais do Supabase
+
+## Funcionalidades Implementadas
+
+- vitrine publica com cards
+- header fixo inspirado no site institucional do Mona
+- header publico sem atalho visivel para o painel admin
+- hero simplificado com badge "Experiencias Mona Hotel" e CTAs principais
+- modal de detalhes por experiencia
+- carrinho local com `localStorage`
+- geracao de consulta consolidada para WhatsApp
+- painel admin com dashboard
+- CRUD de experiencias
+- upload de imagem para Supabase Storage com validacao
+- mini editor de imagem com crop `4:3`, zoom e reposicionamento
+- configuracoes globais do catalogo
+- middleware/proxy para area admin
+- fallback seguro quando o Supabase nao esta configurado
+
+## O Que Ainda Depende Das Chaves Reais
+
+Depois de preencher `.env.local`, valide estes fluxos:
+
+- login do admin com usuario existente no Supabase Auth
+- leitura real de `cards` e `settings`
+- criacao, edicao, ativacao e remocao de cards
+- atualizacao das configuracoes globais
+
+## Observacao de Produto
+
+- a vitrine publica e voltada para leads/clientes finais
+- o painel admin existe apenas para operacao interna
+- por decisao de UX, o acesso ao admin nao deve aparecer exposto no header da vitrine
+
+## Banco de Dados
+
+A migration inicial do projeto esta em:
+
+- `supabase/migrations/001_initial_schema.sql`
+
+Ela inclui:
+
+- tabela `public.cards`
+- tabela `public.settings`
+- trigger de `updated_at`
+- policies iniciais de RLS
+- seed inicial para `settings`
+
+## Imagens dos Cards
+
+- proporcao recomendada: `4:3`
+- resolucao ideal: `1600 x 1200`
+- resolucao minima recomendada: `1200 x 900`
+- formato preferido: `WebP`
+- formatos aceitos no upload: `JPG`, `PNG` e `WebP`
+- limite maximo no upload: `400 KB`
+- bucket usado pelo sistema: `card-images`
+
+Observacao:
+
+- o admin aceita upload de arquivo e tambem `image_url` manual como fallback
+- se um arquivo for enviado, ele tem prioridade sobre a URL manual
+- o editor do admin exporta a imagem final antes do upload
+
+## Seguranca
+
+- nunca versione chaves reais em `.env.example`
+- mantenha os segredos apenas em `.env.local` e no provedor de deploy
+- se uma `SUPABASE_SERVICE_ROLE_KEY` tiver sido exposta, rotacione a chave no Supabase
+
+## Validacao Atual
+
+- `npm run lint` passa
+- `npm run build` passa

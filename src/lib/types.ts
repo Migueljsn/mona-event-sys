@@ -30,3 +30,12 @@ export type SettingsRecord = {
   created_at: string;
   updated_at: string;
 };
+
+export type CartItem = {
+  card_id: string;
+  title: string;
+  quantity: number;
+  unit_label: string;
+  price_text: string | null;
+  image_url: string | null;
+};

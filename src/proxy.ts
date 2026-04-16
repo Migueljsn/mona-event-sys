@@ -1,12 +1,18 @@
 import { createServerClient } from "@supabase/ssr";
 import { type NextRequest, NextResponse } from "next/server";
 
-import { env } from "@/lib/env";
+import { hasSupabaseEnv, requirePublicEnv } from "@/lib/env";
 
 export async function proxy(request: NextRequest) {
   const response = NextResponse.next({
     request,
   });
+
+  if (!hasSupabaseEnv()) {
+    return response;
+  }
+
+  const env = requirePublicEnv();
 
   const supabase = createServerClient(
     env.NEXT_PUBLIC_SUPABASE_URL,
