@@ -8,6 +8,9 @@ export const bootstrapSettings: SettingsRecord = {
     "Monte sua consulta, combine itens no carrinho e finalize o atendimento pelo WhatsApp.",
   reservation_button_label: "Consultar reservas",
   whatsapp_message_intro: "Ola! Tenho interesse nas seguintes experiencias:",
+  gtm_id: null,
+  meta_pixel_id: null,
+  google_ads_id: null,
   created_at: "2026-01-01T00:00:00.000Z",
   updated_at: "2026-01-01T00:00:00.000Z",
 };

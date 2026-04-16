@@ -265,6 +265,9 @@ export async function updateSettingsAction(formData: FormData) {
     whatsapp_message_intro:
       normalizeRequired(formData.get("whatsapp_message_intro")) ||
       "Olá! Tenho interesse nas seguintes experiências:",
+    gtm_id:        normalizeOptional(formData.get("gtm_id")),
+    meta_pixel_id: normalizeOptional(formData.get("meta_pixel_id")),
+    google_ads_id: normalizeOptional(formData.get("google_ads_id")),
   };
 
   const { error } = await supabase.from("settings").update(payload).eq("id", id);

@@ -67,6 +67,23 @@ function fireEvent(cardId: string, eventType: "click" | "add_to_cart" | "whatsap
   });
 }
 
+// ─── Pixel / GTM helpers ─────────────────────────────────────────────────────
+
+/* eslint-disable @typescript-eslint/no-explicit-any */
+function fbq(event: string, data?: Record<string, unknown>) {
+  if (typeof window !== "undefined" && typeof (window as any).fbq === "function") {
+    (window as any).fbq("track", event, data);
+  }
+}
+
+function gtmPush(data: Record<string, unknown>) {
+  if (typeof window !== "undefined") {
+    (window as any).dataLayer = (window as any).dataLayer || [];
+    (window as any).dataLayer.push(data);
+  }
+}
+/* eslint-enable @typescript-eslint/no-explicit-any */
+
 // ─── Carrinho local ───────────────────────────────────────────────────────────
 
 const CART_STORAGE_KEY = "mona-event-sys-cart";
@@ -252,12 +269,16 @@ export function CatalogShell({ cards, settings }: CatalogShellProps) {
 
   function openCard(card: CardRecord) {
     fireEvent(card.id, "click");
+    fbq("ViewContent", { content_name: card.title, content_type: "product" });
+    gtmPush({ event: "view_item", item_name: card.title, item_id: card.id });
     setActiveCard(card);
     setSelectedQuantity(getDefaultQuantity(card));
   }
 
   function addToCart(card: CardRecord, quantity: number) {
     fireEvent(card.id, "add_to_cart");
+    fbq("AddToCart", { content_name: card.title, content_type: "product" });
+    gtmPush({ event: "add_to_cart", item_name: card.title, item_id: card.id, quantity });
     const safeQuantity = clampQuantity(card, quantity);
     const existingItem = cart.find((item) => item.card_id === card.id);
 
@@ -594,6 +615,8 @@ export function CatalogShell({ cards, settings }: CatalogShellProps) {
               onClick={() => {
                 if (cart.length) {
                   cart.forEach((item) => fireEvent(item.card_id, "whatsapp"));
+                  fbq("InitiateCheckout", { num_items: cart.length, content_type: "product" });
+                  gtmPush({ event: "begin_checkout", num_items: cart.length });
                 }
               }}
             >

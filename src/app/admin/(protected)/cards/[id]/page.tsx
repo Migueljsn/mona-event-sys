@@ -6,6 +6,7 @@ import {
   updateCardAction,
 } from "@/app/admin/(protected)/actions";
 import { CardForm } from "@/components/admin/card-form";
+import { DeleteCardButton } from "@/components/admin/delete-card-button";
 import { getAdminCardById } from "@/lib/data/cards";
 import { hasSupabaseEnv } from "@/lib/env";
 
@@ -68,16 +69,14 @@ export default async function CardEditPage({ params }: CardEditPageProps) {
             fizer mais sentido manter o item.
           </p>
 
-          <form action={deleteCardAction} className="mt-5">
-            <input type="hidden" name="id" value={card.id} />
-            <button
-              type="submit"
+          <div className="mt-5">
+            <DeleteCardButton
+              cardId={card.id}
+              cardTitle={card.title}
               disabled={!hasSupabaseEnv()}
-              className="rounded-full bg-red-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-red-700"
-            >
-              Excluir experiencia
-            </button>
-          </form>
+              action={deleteCardAction}
+            />
+          </div>
         </section>
       </div>
     </main>

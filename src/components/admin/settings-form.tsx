@@ -66,6 +66,39 @@ export function SettingsForm({
         helpText="Frase inicial da mensagem enviada ao WhatsApp antes da lista de experiências do carrinho."
       />
 
+      <hr className="border-[var(--color-line)]" />
+
+      <div>
+        <p className="text-sm font-semibold text-[var(--color-ink)]">Rastreamento e analytics</p>
+        <p className="mt-1 text-xs leading-5 text-[var(--color-muted)]">
+          Os scripts são injetados apenas na vitrine pública. Deixe em branco os serviços que não utiliza.
+        </p>
+      </div>
+
+      <FormField
+        label="Google Tag Manager — ID"
+        name="gtm_id"
+        defaultValue={settings.gtm_id ?? ""}
+        placeholder="GTM-XXXXXXX"
+        helpText="Recomendado. Um único ID gerencia GA4, Google Ads, Meta e outros via painel do GTM."
+      />
+
+      <FormField
+        label="Meta Pixel — ID"
+        name="meta_pixel_id"
+        defaultValue={settings.meta_pixel_id ?? ""}
+        placeholder="1234567890123456"
+        helpText="ID numérico do pixel do Meta (Facebook/Instagram). Dispara PageView, ViewContent, AddToCart e InitiateCheckout automaticamente."
+      />
+
+      <FormField
+        label="Google Ads — ID de conversão"
+        name="google_ads_id"
+        defaultValue={settings.google_ads_id ?? ""}
+        placeholder="AW-XXXXXXXXXX"
+        helpText="Use apenas se não estiver usando GTM. Se o GTM já estiver configurado, gerencie a tag do Google Ads por lá."
+      />
+
       <button
         type="submit"
         disabled={disabled}

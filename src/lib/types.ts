@@ -27,6 +27,9 @@ export type SettingsRecord = {
   catalog_subtitle: string | null;
   reservation_button_label: string;
   whatsapp_message_intro: string;
+  gtm_id: string | null;
+  meta_pixel_id: string | null;
+  google_ads_id: string | null;
   created_at: string;
   updated_at: string;
 };
