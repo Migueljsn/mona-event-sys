@@ -8,6 +8,7 @@ import {
   useSyncExternalStore,
 } from "react";
 
+import { trackCardEventAction } from "@/app/actions/track";
 import { FixedSiteHeader } from "@/components/public/fixed-site-header";
 import { BOOKING_URL } from "@/lib/constants";
 import {
@@ -16,6 +17,55 @@ import {
   sanitizeWhatsappNumber,
 } from "@/lib/format";
 import type { CardRecord, CartItem, SettingsRecord } from "@/lib/types";
+
+// ─── Rastreamento de eventos ──────────────────────────────────────────────────
+
+const SESSION_ID_KEY = "mona-session-id";
+const TRACKED_KEY    = "mona-tracked-events";
+
+function getSessionId(): string {
+  let id = sessionStorage.getItem(SESSION_ID_KEY);
+  if (!id) {
+    id = crypto.randomUUID();
+    sessionStorage.setItem(SESSION_ID_KEY, id);
+  }
+  return id;
+}
+
+function alreadyTracked(cardId: string, eventType: string): boolean {
+  try {
+    const list: string[] = JSON.parse(sessionStorage.getItem(TRACKED_KEY) ?? "[]");
+    return list.includes(`${cardId}:${eventType}`);
+  } catch { return false; }
+}
+
+function markTracked(cardId: string, eventType: string): void {
+  try {
+    const list: string[] = JSON.parse(sessionStorage.getItem(TRACKED_KEY) ?? "[]");
+    list.push(`${cardId}:${eventType}`);
+    sessionStorage.setItem(TRACKED_KEY, JSON.stringify(list));
+  } catch { /* silencia */ }
+}
+
+function fireEvent(cardId: string, eventType: "click" | "add_to_cart" | "whatsapp") {
+  if (typeof window === "undefined") return;
+  if (alreadyTracked(cardId, eventType)) return;
+  markTracked(cardId, eventType);
+
+  const params = new URLSearchParams(window.location.search);
+  void trackCardEventAction({
+    cardId,
+    eventType,
+    sessionId:   getSessionId(),
+    userAgent:   navigator.userAgent,
+    referrer:    document.referrer,
+    utmSource:   params.get("utm_source"),
+    utmMedium:   params.get("utm_medium"),
+    utmCampaign: params.get("utm_campaign"),
+    screen:      `${screen.width}x${screen.height}`,
+    language:    navigator.language,
+  });
+}
 
 // ─── Carrinho local ───────────────────────────────────────────────────────────
 
@@ -201,11 +251,13 @@ export function CatalogShell({ cards, settings }: CatalogShellProps) {
   }
 
   function openCard(card: CardRecord) {
+    fireEvent(card.id, "click");
     setActiveCard(card);
     setSelectedQuantity(getDefaultQuantity(card));
   }
 
   function addToCart(card: CardRecord, quantity: number) {
+    fireEvent(card.id, "add_to_cart");
     const safeQuantity = clampQuantity(card, quantity);
     const existingItem = cart.find((item) => item.card_id === card.id);
 
@@ -539,6 +591,11 @@ export function CatalogShell({ cards, settings }: CatalogShellProps) {
             <a
               href={cart.length ? whatsappUrl : "#catalogo"}
               className="mt-6 block rounded-full bg-[var(--color-brand)] px-5 py-3 text-center text-sm font-semibold text-white transition hover:opacity-90"
+              onClick={() => {
+                if (cart.length) {
+                  cart.forEach((item) => fireEvent(item.card_id, "whatsapp"));
+                }
+              }}
             >
               {settings.reservation_button_label}
             </a>

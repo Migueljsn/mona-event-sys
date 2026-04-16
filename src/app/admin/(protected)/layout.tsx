@@ -37,6 +37,7 @@ export default async function ProtectedAdminLayout({
             <nav className="flex items-center gap-4 text-sm text-[var(--color-muted)]">
               <Link href="/admin">Dashboard</Link>
               <Link href="/admin/cards/new">Novo card</Link>
+              <Link href="/admin/metrics">Métricas</Link>
               <Link href="/admin/settings">Configurações</Link>
               <Link href="/">Vitrine</Link>
             </nav>
