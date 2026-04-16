@@ -12,8 +12,8 @@ export async function GET(request: NextRequest) {
   const supabase = await createSupabaseServerClient();
 
   // Verifica autenticação
-  const { data: { session } } = await supabase.auth.getSession();
-  if (!session) redirect("/admin/login");
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/admin/login");
 
   const { searchParams } = new URL(request.url);
   const all  = searchParams.get("from") === "all";

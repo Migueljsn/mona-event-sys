@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useTransition } from "react";
+import { useRef, useState, useTransition } from "react";
 
 import type { CardRecord } from "@/lib/types";
 import { formatDateForInput } from "@/lib/format";
@@ -29,6 +29,8 @@ export function CardForm({
    */
   const imageFileRef = useRef<File | null>(null);
   const [isPending, startTransition] = useTransition();
+  // Sem data de fim: se o card não tiver valid_until, já começa marcado
+  const [noExpiry, setNoExpiry] = useState(!card?.valid_until);
 
   function handleFileReady(file: File | null) {
     imageFileRef.current = file;
@@ -178,13 +180,34 @@ export function CardForm({
       </section>
 
       <section className="grid gap-4 md:grid-cols-2">
-        <FormField
-          label="Válido até"
-          name="valid_until"
-          type="date"
-          defaultValue={formatDateForInput(card?.valid_until ?? null)}
-          helpText="Data limite da experiência. Depois dessa data, o card deixa de aparecer na vitrine pública e passa a constar como expirado no admin."
-        />
+        <div className="grid gap-3">
+          <label className="flex items-center gap-3 rounded-2xl border border-[var(--color-line)] bg-[var(--color-sand)] px-4 py-3">
+            <input
+              type="checkbox"
+              checked={noExpiry}
+              onChange={(e) => setNoExpiry(e.target.checked)}
+              className="size-4"
+            />
+            <span className="text-sm font-medium text-[var(--color-ink)]">
+              Evento sem data de fim
+            </span>
+          </label>
+
+          {!noExpiry && (
+            <FormField
+              label="Válido até"
+              name="valid_until"
+              type="date"
+              defaultValue={formatDateForInput(card?.valid_until ?? null)}
+              helpText="Depois dessa data o card deixa de aparecer na vitrine e consta como expirado no admin."
+            />
+          )}
+
+          {/* Campo oculto para garantir valid_until = "" quando sem data de fim */}
+          {noExpiry && (
+            <input type="hidden" name="valid_until" value="" />
+          )}
+        </div>
       </section>
 
       <TextAreaField

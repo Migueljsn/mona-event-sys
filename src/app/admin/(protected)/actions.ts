@@ -20,6 +20,12 @@ function assertSupabaseConfigured() {
   }
 }
 
+async function assertAuthenticated() {
+  const supabase = await createSupabaseServerClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("Não autorizado.");
+}
+
 function assertSupabaseAdminConfigured() {
   if (!hasSupabaseAdminEnv()) {
     throw new Error(
@@ -177,6 +183,7 @@ async function buildCardPayload(
 
 export async function createCardAction(formData: FormData) {
   assertSupabaseConfigured();
+  await assertAuthenticated();
   const supabase = await createSupabaseServerClient();
 
   const payload = await buildCardPayload(formData);
@@ -194,6 +201,7 @@ export async function createCardAction(formData: FormData) {
 
 export async function updateCardAction(formData: FormData) {
   assertSupabaseConfigured();
+  await assertAuthenticated();
   const supabase = await createSupabaseServerClient();
 
   const id = normalizeRequired(formData.get("id"));
@@ -213,6 +221,7 @@ export async function updateCardAction(formData: FormData) {
 
 export async function deleteCardAction(formData: FormData) {
   assertSupabaseConfigured();
+  await assertAuthenticated();
   const supabase = await createSupabaseServerClient();
   const id = normalizeRequired(formData.get("id"));
 
@@ -229,6 +238,7 @@ export async function deleteCardAction(formData: FormData) {
 
 export async function toggleCardStatusAction(formData: FormData) {
   assertSupabaseConfigured();
+  await assertAuthenticated();
   const supabase = await createSupabaseServerClient();
   const id = normalizeRequired(formData.get("id"));
   const nextValue = formData.get("next_value") === "true";
@@ -248,6 +258,7 @@ export async function toggleCardStatusAction(formData: FormData) {
 
 export async function updateSettingsAction(formData: FormData) {
   assertSupabaseConfigured();
+  await assertAuthenticated();
   const supabase = await createSupabaseServerClient();
   const id = normalizeRequired(formData.get("id"));
 

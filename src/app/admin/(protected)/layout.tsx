@@ -16,14 +16,14 @@ export default async function ProtectedAdminLayout({
   if (isConfigured) {
     const supabase = await createSupabaseServerClient();
     const {
-      data: { session },
-    } = await supabase.auth.getSession();
+      data: { user },
+    } = await supabase.auth.getUser();
 
-    if (!session) {
+    if (!user) {
       redirect("/admin/login");
     }
 
-    sessionEmail = session.user.email ?? null;
+    sessionEmail = user.email ?? null;
   }
 
   return (
